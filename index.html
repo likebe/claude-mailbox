@@ -6,83 +6,186 @@
 <title>My Claude</title>
 <style>
   :root {
-    --bg:#0f1115; --panel:#171a21; --panel-2:#1f2430; --border:#2a2f3a;
-    --text:#e8eaed; --muted:#9aa3b2; --accent:#c96442; --accent-2:#d97757;
-    --user:#243043; --danger:#e5534b; --link:#7aa2f7; --ok:#3fb950;
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1f2430;
+    --border: #2a2f3a;
+    --text: #e8eaed;
+    --muted: #9aa3b2;
+    --accent: #c96442;
+    --accent-2: #d97757;
+    --user: #243043;
+    --assistant: #1b1f29;
+    --danger: #e5534b;
   }
-  * { box-sizing:border-box; }
-  html,body { height:100%; margin:0; }
-  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    background:var(--bg); color:var(--text); display:flex; flex-direction:column; height:100vh; }
-  header { display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--panel); border-bottom:1px solid var(--border); flex-shrink:0; }
-  header h1 { font-size:16px; margin:0; font-weight:600; }
-  header .dot { width:10px; height:10px; border-radius:50%; background:#555; }
-  header .dot.on { background:var(--ok); }
-  header .spacer { flex:1; }
-  header select, header button { background:var(--panel-2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:13px; cursor:pointer; }
-  header button:hover { border-color:var(--accent); }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .dot { width: 10px; height: 10px; border-radius: 50%; background: #555; }
+  header .dot.on { background: #3fb950; }
+  header .spacer { flex: 1; }
+  header select, header button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  header button:hover { border-color: var(--accent); }
 
-  #gate { position:fixed; inset:0; z-index:50; background:var(--bg); display:flex; align-items:center; justify-content:center; }
-  #gate .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:28px; width:min(420px,92vw); }
-  #gate h2 { margin:0 0 6px; font-size:20px; }
-  #gate p { color:var(--muted); font-size:13px; margin:0 0 18px; line-height:1.5; }
-  #gate label { display:block; font-size:12px; color:var(--muted); margin:12px 0 6px; }
-  #gate input { width:100%; padding:11px 12px; border-radius:10px; background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-size:14px; }
-  #gate button { margin-top:18px; width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; }
-  #gate button:hover { background:var(--accent-2); }
-  #gate .err { color:var(--danger); font-size:13px; margin-top:10px; min-height:18px; }
+  /* Gate */
+  #gate {
+    position: fixed; inset: 0; z-index: 50;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #gate .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: min(420px, 92vw);
+  }
+  #gate h2 { margin: 0 0 6px; font-size: 20px; }
+  #gate p { color: var(--muted); font-size: 13px; margin: 0 0 18px; line-height: 1.5; }
+  #gate label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+  #gate input {
+    width: 100%; padding: 11px 12px; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); font-size: 14px;
+  }
+  #gate button {
+    margin-top: 18px; width: 100%; padding: 12px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  #gate button:hover { background: var(--accent-2); }
+  #gate .err { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
 
-  #chat { flex:1; overflow-y:auto; padding:24px 0; }
-  .wrap { max-width:820px; margin:0 auto; padding:0 16px; }
-  .msg { display:flex; gap:12px; margin-bottom:22px; }
-  .msg .avatar { width:28px; height:28px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
-  .msg.user .avatar { background:var(--user); color:#cfe0ff; }
-  .msg.assistant .avatar { background:var(--accent); color:#fff; }
-  .msg .body { flex:1; min-width:0; }
-  .msg .body .role { font-size:12px; color:var(--muted); margin-bottom:4px; }
-  .msg .content { line-height:1.65; font-size:15px; word-wrap:break-word; white-space:pre-wrap; }
-  .msg .content pre { background:#0b0d11; border:1px solid var(--border); border-radius:10px; padding:12px; overflow-x:auto; white-space:pre; font-size:13px; font-family:"SFMono-Regular",Consolas,monospace; }
-  .msg .content code { font-family:"SFMono-Regular",Consolas,monospace; }
-  .attachments,.outfiles { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .chip { font-size:12px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; color:var(--muted); }
-  .outfiles a { font-size:12px; background:var(--panel-2); border:1px solid var(--accent); border-radius:8px; padding:5px 10px; color:var(--link); text-decoration:none; }
-  .outfiles a:hover { background:var(--panel); }
-  .status { color:var(--muted); font-size:13px; font-style:italic; }
+  /* Chat */
+  #chat { flex: 1; overflow-y: auto; padding: 24px 0; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+  .msg { display: flex; gap: 12px; margin-bottom: 22px; }
+  .msg .avatar {
+    width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .msg.user .avatar { background: var(--user); color: #cfe0ff; }
+  .msg.assistant .avatar { background: var(--accent); color: #fff; }
+  .msg .body { flex: 1; min-width: 0; }
+  .msg .body .role { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .msg .content {
+    line-height: 1.65; font-size: 15px; word-wrap: break-word; white-space: pre-wrap;
+  }
+  .msg .content pre {
+    background: #0b0d11; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre;
+    font-size: 13px; font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  .msg .content code { font-family: "SFMono-Regular", Consolas, monospace; }
+  .attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .attachments .chip {
+    font-size: 12px; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px 9px; color: var(--muted);
+  }
+  .typing { color: var(--muted); font-size: 13px; }
 
-  #composer { flex-shrink:0; border-top:1px solid var(--border); background:var(--panel); padding:12px 0; }
-  .composer-inner { max-width:820px; margin:0 auto; padding:0 16px; }
-  .pending-files { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
-  .pending-files .chip { color:var(--text); display:flex; align-items:center; gap:6px; padding:4px 8px 4px 10px; }
-  .pending-files .chip button { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:0; }
-  .input-row { display:flex; align-items:flex-end; gap:8px; background:var(--panel-2); border:1px solid var(--border); border-radius:14px; padding:8px 8px 8px 12px; }
-  .input-row textarea { flex:1; resize:none; border:none; background:transparent; color:var(--text); font-size:15px; line-height:1.5; max-height:200px; font-family:inherit; outline:none; padding:6px 0; }
-  .icon-btn { background:var(--panel); color:var(--muted); border:1px solid var(--border); width:38px; height:38px; border-radius:10px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .icon-btn:hover { color:var(--text); border-color:var(--accent); }
-  .send-btn { background:var(--accent); color:#fff; border:none; width:38px; height:38px; border-radius:10px; cursor:pointer; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .send-btn:disabled { opacity:.4; cursor:not-allowed; }
-  .send-btn:hover:not(:disabled) { background:var(--accent-2); }
-  .hint { text-align:center; color:var(--muted); font-size:11px; margin-top:8px; }
+  /* Composer */
+  #composer {
+    flex-shrink: 0; border-top: 1px solid var(--border);
+    background: var(--panel); padding: 12px 0;
+  }
+  .composer-inner {
+    max-width: 820px; margin: 0 auto; padding: 0 16px;
+  }
+  .pending-files { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .pending-files .chip {
+    font-size: 12px; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px 8px 4px 10px; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pending-files .chip button {
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0;
+  }
+  .input-row {
+    display: flex; align-items: flex-end; gap: 8px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 8px 8px 8px 12px;
+  }
+  .input-row textarea {
+    flex: 1; resize: none; border: none; background: transparent;
+    color: var(--text); font-size: 15px; line-height: 1.5; max-height: 200px;
+    font-family: inherit; outline: none; padding: 6px 0;
+  }
+  .icon-btn {
+    background: var(--panel); color: var(--muted); border: 1px solid var(--border);
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .icon-btn:hover { color: var(--text); border-color: var(--accent); }
+  .send-btn {
+    background: var(--accent); color: #fff; border: none;
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 17px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn:hover:not(:disabled) { background: var(--accent-2); }
+  .hint { text-align: center; color: var(--muted); font-size: 11px; margin-top: 8px; }
 
-  #settings { position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; }
-  #settings.open { display:flex; }
-  #settings .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:24px; width:min(480px,92vw); }
-  #settings h3 { margin:0 0 16px; }
-  #settings label { display:block; font-size:12px; color:var(--muted); margin:14px 0 6px; }
-  #settings input { width:100%; padding:10px 12px; border-radius:10px; background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-size:14px; }
-  #settings .actions { display:flex; gap:10px; margin-top:20px; }
-  #settings .actions button { flex:1; padding:11px; border-radius:10px; font-size:14px; cursor:pointer; border:none; }
-  #settings .save { background:var(--accent); color:#fff; }
-  #settings .close { background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
-  .empty { text-align:center; color:var(--muted); margin-top:12vh; }
-  .empty h2 { color:var(--text); font-weight:600; }
+  /* Settings modal */
+  #settings {
+    position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.55);
+    display: none; align-items: center; justify-content: center;
+  }
+  #settings.open { display: flex; }
+  #settings .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; width: min(480px, 92vw);
+  }
+  #settings h3 { margin: 0 0 16px; }
+  #settings label { display: block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+  #settings input, #settings textarea {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); font-size: 14px; font-family: inherit;
+  }
+  #settings textarea { resize: vertical; min-height: 70px; }
+  #settings .actions { display: flex; gap: 10px; margin-top: 20px; }
+  #settings .actions button { flex: 1; padding: 11px; border-radius: 10px; font-size: 14px; cursor: pointer; border: none; }
+  #settings .save { background: var(--accent); color: #fff; }
+  #settings .close { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+  .empty { text-align: center; color: var(--muted); margin-top: 12vh; }
+  .empty h2 { color: var(--text); font-weight: 600; }
 </style>
 </head>
 <body>
 
+<!-- Password gate -->
 <div id="gate">
   <div class="card">
     <h2>My Claude</h2>
-    <p>私有的 Claude 客户端。请输入访问密码。</p>
+    <p>这是一个私有的 Claude 网页客户端。请输入访问密码。</p>
     <label>访问密码</label>
     <input id="gatePassword" type="password" placeholder="输入密码" autocomplete="current-password" />
     <button id="gateEnter">进入</button>
@@ -95,11 +198,11 @@
   <h1>My Claude</h1>
   <span class="spacer"></span>
   <select id="modelSelect" title="模型">
-    <option value="">默认（按订阅）</option>
-    <option value="sonnet">Sonnet</option>
-    <option value="opus">Opus</option>
-    <option value="haiku">Haiku</option>
+    <option value="claude-sonnet-4-6">Sonnet 4.6（均衡）</option>
+    <option value="claude-opus-4-8">Opus 4.8（最强）</option>
+    <option value="claude-haiku-4-5-20251001">Haiku 4.5（最快/最省）</option>
   </select>
+  <button id="downloadBtn" title="导出对话为 Markdown">导出</button>
   <button id="newBtn" title="清空对话">新对话</button>
   <button id="settingsBtn" title="设置">设置</button>
 </header>
@@ -108,7 +211,7 @@
   <div class="wrap" id="messages">
     <div class="empty" id="emptyState">
       <h2>开始和 Claude 对话</h2>
-      <p>可发送文字，或用 + 上传文件。Claude 生成的文件会在回复下方出现下载链接。</p>
+      <p>可以发送文字，也可以用 + 上传图片、PDF 或文本文件。</p>
     </div>
   </div>
 </div>
@@ -118,19 +221,25 @@
     <div class="pending-files" id="pendingFiles"></div>
     <div class="input-row">
       <button class="icon-btn" id="attachBtn" title="上传文件">+</button>
-      <input type="file" id="fileInput" multiple style="display:none" />
-      <textarea id="input" rows="1" placeholder="发送消息…（Enter 发送，Shift+Enter 换行）"></textarea>
+      <input type="file" id="fileInput" multiple style="display:none"
+             accept="image/*,application/pdf,.txt,.md,.csv,.json,.js,.ts,.py,.html,.css,.xml,.log" />
+      <textarea id="input" rows="1" placeholder="给 Claude 发送消息…（Enter 发送，Shift+Enter 换行）"></textarea>
       <button class="send-btn" id="sendBtn" title="发送">↑</button>
     </div>
-    <div class="hint">消息会送到信箱，由你的工作机 Claude 处理后回填。</div>
+    <div class="hint">内容经你的后端转发给 Anthropic API。请勿输入高度敏感信息。</div>
   </div>
 </div>
 
+<!-- Settings -->
 <div id="settings">
   <div class="card">
     <h3>设置</h3>
-    <label>信箱地址（你的 Worker URL，例如 https://claude-mailbox.xxx.workers.dev）</label>
-    <input id="backendUrl" type="text" placeholder="https://claude-mailbox.xxx.workers.dev" />
+    <label>后端地址（你的 Cloudflare Worker URL）</label>
+    <input id="backendUrl" type="text" placeholder="https://your-worker.your-name.workers.dev" />
+    <label>系统提示词 System Prompt（可选）</label>
+    <textarea id="systemPrompt" placeholder="例如：你是一个简洁、专业的助手。"></textarea>
+    <label>最大输出 tokens</label>
+    <input id="maxTokens" type="number" value="4096" min="256" max="64000" />
     <div class="actions">
       <button class="close" id="settingsClose">关闭</button>
       <button class="save" id="settingsSave">保存</button>
@@ -142,183 +251,337 @@
 (function () {
   "use strict";
 
+  // ---------- State ----------
   var state = {
-    password: sessionStorage.getItem("mcm_password") || "",
-    backendUrl: localStorage.getItem("mcm_backend") || "https://likebe--a5e61c726a1911f192bd1607ee4eb77e.web.val.run",
-    model: localStorage.getItem("mcm_model") || "",
-    conversationId: newCid(),
-    pending: [],
-    busy: false
+    password: sessionStorage.getItem("mc_password") || "",
+    backendUrl: localStorage.getItem("mc_backend") || "",
+    systemPrompt: localStorage.getItem("mc_system") || "",
+    maxTokens: parseInt(localStorage.getItem("mc_maxtokens") || "4096", 10),
+    model: localStorage.getItem("mc_model") || "claude-sonnet-4-6",
+    history: [],        // Anthropic-format messages
+    pending: [],        // pending attachments: {name, kind, block, isText}
+    streaming: false
   };
 
-  function $(id){ return document.getElementById(id); }
-  function newCid(){ return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-  function setStatus(on){ $("statusDot").classList.toggle("on", !!on); }
-  function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-  function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  // ---------- Helpers ----------
+  var $ = function (id) { return document.getElementById(id); };
 
-  function renderContent(text){
-    var parts = String(text).split(/```/), html="";
-    for (var i=0;i<parts.length;i++){
-      if (i%2===1){ html += "<pre><code>" + escapeHtml(parts[i].replace(/^[a-zA-Z0-9_-]*\n/,"")) + "</code></pre>"; }
-      else { html += escapeHtml(parts[i]).replace(/`([^`]+)`/g,"<code>$1</code>"); }
+  function setStatus(on) { $("statusDot").classList.toggle("on", !!on); }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Minimal, safe markdown-ish rendering: code fences + inline code only.
+  function renderContent(text) {
+    var parts = text.split(/```/);
+    var html = "";
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        var body = parts[i].replace(/^[a-zA-Z0-9_-]*\n/, "");
+        html += "<pre><code>" + escapeHtml(body) + "</code></pre>";
+      } else {
+        var seg = escapeHtml(parts[i]).replace(/`([^`]+)`/g, "<code>$1</code>");
+        html += seg;
+      }
     }
     return html;
   }
-  function readAsDataURL(file){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(file); }); }
 
-  // Gate
-  function showApp(){ $("gate").style.display="none"; }
-  function tryEnter(){
-    var pw=$("gatePassword").value.trim();
-    if(!pw){ $("gateErr").textContent="请输入密码。"; return; }
-    state.password=pw; sessionStorage.setItem("mcm_password",pw); showApp();
-    if(!state.backendUrl) openSettings();
+  function readFileAsDataURL(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(r.result); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+  function readFileAsText(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(r.result); };
+      r.onerror = reject;
+      r.readAsText(file);
+    });
+  }
+
+  var TEXT_EXT = /\.(txt|md|csv|json|js|ts|py|html|css|xml|log|yaml|yml|sh|java|c|cpp|go|rs|rb|php|sql)$/i;
+
+  // ---------- Gate ----------
+  function showApp() { $("gate").style.display = "none"; }
+  function tryEnter() {
+    var pw = $("gatePassword").value.trim();
+    if (!pw) { $("gateErr").textContent = "请输入密码。"; return; }
+    state.password = pw;
+    sessionStorage.setItem("mc_password", pw);
+    showApp();
+    if (!state.backendUrl) openSettings();
   }
   $("gateEnter").addEventListener("click", tryEnter);
-  $("gatePassword").addEventListener("keydown", function(e){ if(e.key==="Enter") tryEnter(); });
+  $("gatePassword").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") tryEnter();
+  });
   if (state.password) showApp();
 
-  // Settings
-  function openSettings(){ $("backendUrl").value=state.backendUrl; $("settings").classList.add("open"); }
-  function closeSettings(){ $("settings").classList.remove("open"); }
+  // ---------- Settings ----------
+  function openSettings() {
+    $("backendUrl").value = state.backendUrl;
+    $("systemPrompt").value = state.systemPrompt;
+    $("maxTokens").value = state.maxTokens;
+    $("settings").classList.add("open");
+  }
+  function closeSettings() { $("settings").classList.remove("open"); }
   $("settingsBtn").addEventListener("click", openSettings);
   $("settingsClose").addEventListener("click", closeSettings);
-  $("settingsSave").addEventListener("click", function(){
-    state.backendUrl=$("backendUrl").value.trim().replace(/\/+$/,"");
-    localStorage.setItem("mcm_backend", state.backendUrl); closeSettings();
+  $("settingsSave").addEventListener("click", function () {
+    state.backendUrl = $("backendUrl").value.trim().replace(/\/+$/, "");
+    state.systemPrompt = $("systemPrompt").value;
+    state.maxTokens = parseInt($("maxTokens").value, 10) || 4096;
+    localStorage.setItem("mc_backend", state.backendUrl);
+    localStorage.setItem("mc_system", state.systemPrompt);
+    localStorage.setItem("mc_maxtokens", String(state.maxTokens));
+    closeSettings();
   });
 
-  // Model
-  $("modelSelect").value=state.model;
-  $("modelSelect").addEventListener("change", function(){ state.model=$("modelSelect").value; localStorage.setItem("mcm_model", state.model); });
+  // ---------- Model ----------
+  $("modelSelect").value = state.model;
+  $("modelSelect").addEventListener("change", function () {
+    state.model = $("modelSelect").value;
+    localStorage.setItem("mc_model", state.model);
+  });
 
-  // Attachments
-  $("attachBtn").addEventListener("click", function(){ $("fileInput").click(); });
-  $("fileInput").addEventListener("change", async function(e){
-    var files=Array.prototype.slice.call(e.target.files);
-    for (var i=0;i<files.length;i++){
-      var f=files[i];
-      try { var d=await readAsDataURL(f); state.pending.push({ name:f.name, dataBase64:d.split(",")[1] }); }
-      catch(err){ alert("读取文件失败："+f.name); }
+  // ---------- Attachments ----------
+  $("attachBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("fileInput").addEventListener("change", async function (e) {
+    var files = Array.prototype.slice.call(e.target.files);
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      try {
+        if (f.type.indexOf("image/") === 0) {
+          var durl = await readFileAsDataURL(f);
+          state.pending.push({
+            name: f.name, kind: "图片",
+            block: { type: "image", source: { type: "base64", media_type: f.type, data: durl.split(",")[1] } }
+          });
+        } else if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) {
+          var durl2 = await readFileAsDataURL(f);
+          state.pending.push({
+            name: f.name, kind: "PDF",
+            block: { type: "document", source: { type: "base64", media_type: "application/pdf", data: durl2.split(",")[1] } }
+          });
+        } else if (f.type.indexOf("text/") === 0 || TEXT_EXT.test(f.name)) {
+          var txt = await readFileAsText(f);
+          state.pending.push({
+            name: f.name, kind: "文本", isText: true,
+            block: { type: "text", text: "【文件：" + f.name + "】\n\n" + txt }
+          });
+        } else {
+          alert("暂不支持的文件类型：" + f.name + "\n支持：图片、PDF、纯文本类文件。");
+        }
+      } catch (err) {
+        alert("读取文件失败：" + f.name);
+      }
     }
-    renderPending(); $("fileInput").value="";
+    renderPending();
+    $("fileInput").value = "";
   });
-  function renderPending(){
-    var c=$("pendingFiles"); c.innerHTML="";
-    state.pending.forEach(function(p,idx){
-      var chip=document.createElement("div"); chip.className="chip";
-      chip.innerHTML="<span>"+escapeHtml(p.name)+"</span>";
-      var x=document.createElement("button"); x.textContent="×";
-      x.addEventListener("click", function(){ state.pending.splice(idx,1); renderPending(); });
-      chip.appendChild(x); c.appendChild(chip);
+
+  function renderPending() {
+    var c = $("pendingFiles");
+    c.innerHTML = "";
+    state.pending.forEach(function (p, idx) {
+      var chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML = "<span>" + p.kind + "：" + escapeHtml(p.name) + "</span>";
+      var x = document.createElement("button");
+      x.textContent = "×";
+      x.addEventListener("click", function () { state.pending.splice(idx, 1); renderPending(); });
+      chip.appendChild(x);
+      c.appendChild(chip);
     });
   }
 
-  // Messages
-  function clearEmpty(){ var e=$("emptyState"); if(e) e.remove(); }
-  function addMessageEl(role){
-    clearEmpty();
-    var msg=document.createElement("div"); msg.className="msg "+role;
-    var avatar=document.createElement("div"); avatar.className="avatar"; avatar.textContent=role==="user"?"你":"C";
-    var body=document.createElement("div"); body.className="body";
-    var roleEl=document.createElement("div"); roleEl.className="role"; roleEl.textContent=role==="user"?"你":"Claude";
-    var content=document.createElement("div"); content.className="content";
-    body.appendChild(roleEl); body.appendChild(content);
-    msg.appendChild(avatar); msg.appendChild(body);
-    $("messages").appendChild(msg); scrollDown();
-    return { content:content, body:body };
-  }
-  function scrollDown(){ var c=$("chat"); c.scrollTop=c.scrollHeight; }
+  // ---------- Rendering messages ----------
+  function clearEmpty() { var e = $("emptyState"); if (e) e.remove(); }
 
-  // Send
-  var input=$("input");
-  input.addEventListener("input", function(){ input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,200)+"px"; });
-  input.addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
+  function addMessageEl(role) {
+    clearEmpty();
+    var msg = document.createElement("div");
+    msg.className = "msg " + role;
+    var avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = role === "user" ? "你" : "C";
+    var body = document.createElement("div");
+    body.className = "body";
+    var roleEl = document.createElement("div");
+    roleEl.className = "role";
+    roleEl.textContent = role === "user" ? "你" : "Claude";
+    var content = document.createElement("div");
+    content.className = "content";
+    body.appendChild(roleEl);
+    body.appendChild(content);
+    msg.appendChild(avatar);
+    msg.appendChild(body);
+    $("messages").appendChild(msg);
+    scrollDown();
+    return { content: content, body: body };
+  }
+
+  function scrollDown() { var c = $("chat"); c.scrollTop = c.scrollHeight; }
+
+  // ---------- Send ----------
+  var input = $("input");
+  input.addEventListener("input", function () {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 200) + "px";
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  });
   $("sendBtn").addEventListener("click", send);
 
-  async function send(){
-    if (state.busy) return;
-    var text=input.value.trim();
-    if (!text && state.pending.length===0) return;
-    if (!state.backendUrl){ openSettings(); alert("请先在设置里填入信箱地址。"); return; }
+  async function send() {
+    if (state.streaming) return;
+    var text = input.value.trim();
+    if (!text && state.pending.length === 0) return;
+    if (!state.backendUrl) { openSettings(); alert("请先在设置里填入后端地址。"); return; }
 
-    var ui=addMessageEl("user");
-    ui.content.innerHTML=renderContent(text || "(仅附件)");
-    if (state.pending.length){
-      var att=document.createElement("div"); att.className="attachments";
-      state.pending.forEach(function(p){ var s=document.createElement("span"); s.className="chip"; s.textContent="文件："+p.name; att.appendChild(s); });
+    // Build user content blocks
+    var content = [];
+    state.pending.forEach(function (p) { content.push(p.block); });
+    if (text) content.push({ type: "text", text: text });
+
+    // Render user message
+    var ui = addMessageEl("user");
+    ui.content.innerHTML = renderContent(text || "(仅附件)");
+    if (state.pending.length) {
+      var att = document.createElement("div");
+      att.className = "attachments";
+      state.pending.forEach(function (p) {
+        var chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = p.kind + "：" + p.name;
+        att.appendChild(chip);
+      });
       ui.body.appendChild(att);
     }
-    var filesPayload=state.pending.map(function(p){ return { name:p.name, dataBase64:p.dataBase64 }; });
-    input.value=""; input.style.height="auto"; state.pending=[]; renderPending();
 
-    var ai=addMessageEl("assistant");
-    ai.content.innerHTML="<span class='status'>已提交，排队中…</span>";
-    state.busy=true; $("sendBtn").disabled=true; setStatus(true);
+    state.history.push({ role: "user", content: content });
+    input.value = "";
+    input.style.height = "auto";
+    state.pending = [];
+    renderPending();
 
+    // Assistant placeholder
+    var ai = addMessageEl("assistant");
+    ai.content.innerHTML = "<span class='typing'>正在思考…</span>";
+    state.streaming = true;
+    $("sendBtn").disabled = true;
+
+    var acc = "";
     try {
-      // 1) submit job
-      var sres=await fetch(state.backendUrl + "/submit", {
-        method:"POST", headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ password:state.password, conversationId:state.conversationId, model:state.model, message:text, files:filesPayload })
+      var resp = await fetch(state.backendUrl + "/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: state.password,
+          model: state.model,
+          max_tokens: state.maxTokens,
+          system: state.systemPrompt || undefined,
+          messages: state.history
+        })
       });
-      if (!sres.ok){
-        if (sres.status===401){ ai.content.innerHTML="<span style='color:#e5534b'>密码错误或已失效，请刷新重输。</span>"; sessionStorage.removeItem("mcm_password"); }
-        else { ai.content.innerHTML="<span style='color:#e5534b'>提交失败（"+sres.status+"）。</span>"; }
+
+      if (!resp.ok) {
+        var errText = await resp.text();
+        if (resp.status === 401) {
+          ai.content.innerHTML = "<span style='color:#e5534b'>密码错误或已失效。请刷新页面重新输入。</span>";
+          sessionStorage.removeItem("mc_password");
+        } else {
+          ai.content.innerHTML = "<span style='color:#e5534b'>请求失败（" + resp.status + "）：" + escapeHtml(errText.slice(0, 500)) + "</span>";
+        }
+        state.history.pop();
         return;
       }
-      var jobId=(await sres.json()).jobId;
+      setStatus(true);
 
-      // 2) poll for result
-      var lastLen=0, idleTicks=0;
-      while (true){
-        await sleep(1500);
-        var rres;
-        try { rres=await fetch(state.backendUrl + "/result?jobId=" + encodeURIComponent(jobId) + "&password=" + encodeURIComponent(state.password)); }
-        catch(e){ continue; }
-        if (!rres.ok) continue;
-        var d=await rres.json();
-        if (d.output && d.output.length!==lastLen){ lastLen=d.output.length; idleTicks=0; ai.content.innerHTML=renderContent(d.output); scrollDown(); }
-        else if (d.status==="queued"){ idleTicks++; if (idleTicks>20 && !d.output) ai.content.innerHTML="<span class='status'>排队中…（确认工作机的取件员在运行?）</span>"; }
-        else if (!d.output){ ai.content.innerHTML="<span class='status'>工作机处理中…</span>"; }
-
-        if (d.done){
-          if (d.error && !d.output){ ai.content.innerHTML="<span style='color:#e5534b'>"+escapeHtml(d.error)+"</span>"; }
-          else if (d.error){ ai.content.innerHTML=renderContent(d.output) + "<div style='color:#e5534b;font-size:13px;margin-top:6px'>["+escapeHtml(d.error)+"]</div>"; }
-          else if (!d.output){ ai.content.innerHTML="<span class='status'>（无文字输出）</span>"; }
-          if (d.files && d.files.length) renderOutFiles(ai.body, jobId, d.files);
-          break;
+      // Parse SSE stream
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var blocks = buffer.split("\n\n");
+        buffer = blocks.pop();
+        for (var b = 0; b < blocks.length; b++) {
+          var lines = blocks[b].split("\n");
+          for (var l = 0; l < lines.length; l++) {
+            var line = lines[l];
+            if (line.indexOf("data:") !== 0) continue;
+            var data = line.slice(5).trim();
+            if (!data) continue;
+            try {
+              var ev = JSON.parse(data);
+              if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") {
+                acc += ev.delta.text;
+                ai.content.innerHTML = renderContent(acc);
+                scrollDown();
+              } else if (ev.type === "error") {
+                acc += "\n\n[错误] " + (ev.error && ev.error.message ? ev.error.message : JSON.stringify(ev.error));
+                ai.content.innerHTML = renderContent(acc);
+              }
+            } catch (e) { /* ignore non-JSON keepalives */ }
+          }
         }
       }
-    } catch(err){
-      ai.content.innerHTML="<span style='color:#e5534b'>网络错误："+escapeHtml(String(err))+"</span>";
+      if (!acc) { ai.content.innerHTML = "<span class='typing'>（无输出）</span>"; }
+      state.history.push({ role: "assistant", content: acc });
+    } catch (err) {
+      ai.content.innerHTML = "<span style='color:#e5534b'>网络错误：" + escapeHtml(String(err)) + "</span>";
+      state.history.pop();
     } finally {
-      state.busy=false; $("sendBtn").disabled=false; setStatus(false); scrollDown();
+      state.streaming = false;
+      $("sendBtn").disabled = false;
+      setStatus(false);
+      scrollDown();
     }
   }
 
-  function renderOutFiles(bodyEl, jobId, files){
-    var wrap=document.createElement("div"); wrap.className="outfiles";
-    var label=document.createElement("div"); label.style.cssText="width:100%;font-size:12px;color:var(--muted);margin-bottom:2px"; label.textContent="Claude 生成的文件（点击下载）：";
-    wrap.appendChild(label);
-    files.forEach(function(f){
-      var a=document.createElement("a");
-      a.href=state.backendUrl + "/file?jobId=" + encodeURIComponent(jobId) + "&name=" + encodeURIComponent(f.name) + "&password=" + encodeURIComponent(state.password);
-      a.textContent=f.name + (f.size!=null ? " ("+fmtSize(f.size)+")" : "");
-      a.setAttribute("download", f.name); a.target="_blank";
-      wrap.appendChild(a);
-    });
-    bodyEl.appendChild(wrap);
-  }
-  function fmtSize(n){ if(n<1024) return n+" B"; if(n<1048576) return (n/1024).toFixed(1)+" KB"; return (n/1048576).toFixed(1)+" MB"; }
+  // ---------- New conversation ----------
+  $("newBtn").addEventListener("click", function () {
+    if (state.streaming) return;
+    if (state.history.length && !confirm("清空当前对话？")) return;
+    state.history = [];
+    state.pending = [];
+    renderPending();
+    $("messages").innerHTML =
+      '<div class="empty" id="emptyState"><h2>开始和 Claude 对话</h2>' +
+      '<p>可以发送文字，也可以用 + 上传图片、PDF 或文本文件。</p></div>';
+  });
 
-  // New conversation
-  $("newBtn").addEventListener("click", function(){
-    if (state.busy) return;
-    if (!confirm("开始新对话?")) return;
-    state.conversationId=newCid(); state.pending=[]; renderPending();
-    $("messages").innerHTML='<div class="empty" id="emptyState"><h2>开始和 Claude 对话</h2><p>可发送文字，或用 + 上传文件。Claude 生成的文件会在回复下方出现下载链接。</p></div>';
+  // ---------- Export ----------
+  $("downloadBtn").addEventListener("click", function () {
+    if (!state.history.length) { alert("还没有对话内容。"); return; }
+    var md = "# Claude 对话记录\n\n";
+    state.history.forEach(function (m) {
+      var who = m.role === "user" ? "你" : "Claude";
+      var textParts = [];
+      if (typeof m.content === "string") textParts.push(m.content);
+      else m.content.forEach(function (blk) {
+        if (blk.type === "text") textParts.push(blk.text);
+        else if (blk.type === "image") textParts.push("[图片]");
+        else if (blk.type === "document") textParts.push("[PDF 文档]");
+      });
+      md += "## " + who + "\n\n" + textParts.join("\n\n") + "\n\n";
+    });
+    var blob = new Blob([md], { type: "text/markdown" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "claude-chat-" + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + ".md";
+    a.click();
+    URL.revokeObjectURL(a.href);
   });
 
 })();
