@@ -225,11 +225,11 @@
 (function () {
   "use strict";
 
-  var DEFAULT_BACKEND = "https://likebe--a5e61c726a1911f192bd1607ee4eb77e.web.val.run";
+  var DEFAULT_BACKEND = "https://claude-relay-u6re.onrender.com";
 
   var state = {
     password: sessionStorage.getItem("mcm_password") || "",
-    backendUrl: localStorage.getItem("mcm_backend") || DEFAULT_BACKEND,
+    backendUrl: localStorage.getItem("mcm_backend_v2") || DEFAULT_BACKEND,
     model: localStorage.getItem("mcm_model") || "",
     convos: [],
     activeId: null,
@@ -380,7 +380,7 @@
   $("settingsClose").addEventListener("click", function(){ $("settings").classList.add("hidden"); });
   $("settingsSave").addEventListener("click", function(){
     state.backendUrl=$("backendUrl").value.trim().replace(/\/+$/,"")||DEFAULT_BACKEND;
-    localStorage.setItem("mcm_backend", state.backendUrl); $("settings").classList.add("hidden");
+    localStorage.setItem("mcm_backend_v2", state.backendUrl); $("settings").classList.add("hidden");
   });
   $("lockBtn").addEventListener("click", function(){ sessionStorage.removeItem("mcm_password"); location.reload(); });
 
